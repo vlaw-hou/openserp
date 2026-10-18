@@ -1,3 +1,7 @@
+networks:
+  caddynet:
+    external: true
+
 services:
   openserp:
     container_name: serp
@@ -12,6 +16,8 @@ services:
     ports: 
       - 100.92.42.42:7655:7000
     command: serve -l
+    networks:
+      - caddynet
     volumes:
       - /opt/vps3/vps3-data/openserp/config.yaml:/usr/src/app/config.yaml:ro
 
