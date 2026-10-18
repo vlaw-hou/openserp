@@ -4,16 +4,16 @@ services:
     init: true
     # Chrome crashes with "Out of memory" on page loads when /dev/shm is the default 64MB. Prefer an enlarged shm over `ipc:host` to keep the container isolated from the host IPC namespace.
     shm_size: 2gb
-    image: karust/openserp:latest
+    image: karust/openserp:0.8.12
     # To build from source instead of pulling the prebuilt image,
     # uncomment and run `docker compose up --build`:
     #build:
     #  context: .
     ports: 
-      - 7000:7000
+      - 100.92.42.42:7655:7000
     command: serve -l
     volumes:
-      - ./config.yaml:/usr/src/app/config.yaml:ro
+      - /opt/vps3/vps3-data/openserp/config.yaml:/usr/src/app/config.yaml:ro
 
     # proxies:
     #   entries:
