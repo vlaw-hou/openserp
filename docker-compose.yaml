@@ -4,33 +4,25 @@ networks:
 
 services:
   openserp:
-    container_name: openserp-mcp
+    container_name: openserp
     init: true
     # Chrome crashes with "Out of memory" on page loads when /dev/shm is the default 64MB. Prefer an enlarged shm over `ipc:host` to keep the container isolated from the host IPC namespace.
     shm_size: 2gb
     image: karust/openserp:0.8.17
-    # To build from source instead of pulling the prebuilt image,
-    # uncomment and run `docker compose up --build`:
-    # build:
-    #  context: .
     ports: 
-      - 100.92.42.42:3333:3333
-
-    command:
-      - npx
-      - -y
-      - "@openserp/mcp"
-      - --http
-      - --host
-      - 0.0.0.0
-      - --port
-      - "3333"
-      
+      - 100.92.42.42:7657:7000
     networks:
       - caddynet
     volumes:
       - /opt/vps3/vps3-data/openserp/config.yaml:/usr/src/app/config.yaml:ro
-
+      
+    command:
+      - serve
+      - -a
+      - 0.0.0.0
+      - -p
+      - "7000"
+      
     # proxies:
     #   entries:
     #     - url: http://user:pass@res-proxy-1.example:8080
@@ -45,6 +37,32 @@ services:
       OPENSERP_SERVER_PORT: 7000
       OPENSERP_BAIDU_RATE_REQUESTS: 6   # Number of requests per Minute
       OPENSERP_BAIDU_RATE_BURST: 2      # Number of non-ratelimited requests per Minute
+
+  openserp-mcp:
+    image: node:22-alpine
+    container_name: openserp-mcp
+    restart: unless-stopped
+    networks:
+      - caddynet
+
+    command:
+      - npx
+      - -y
+      - "@openserp/mcp"
+      - --http
+      - --host
+      - 0.0.0.0
+      - --port
+      - "3333"
+
+    environment:
       OPENSERP_BASE_URL: "http://openserp:7000"
       OPENSERP_BACKEND: "oss"
+
+    ports:
+      - "100.92.42.42:3333:3333"
+
+    depends_on:
+      - openserp
+
     
